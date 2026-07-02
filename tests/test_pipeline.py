@@ -72,3 +72,50 @@ for elite in sorted_fronts[0]:
     print(f"   -> Compactness: {elite.fitness[0]:.2f} | Separation: {elite.fitness[1]:.2f} | Sparsity: {elite.custom_spacing if hasattr(elite, 'custom_spacing') else elite.crowding_distance}")
     
 print("================ Phase 2 Core Engine Operational ================")
+import numpy as np
+from src.utils import generate_synthetic_spaces
+from src.core_engine import ClusterIndividual
+from src.objectives import evaluate_compactness, evaluate_separation
+from src.nsga2_ops import fast_non_dominated_sort, assign_crowding_distances
+from src.reproduction import tournament_selection, crossover_centroids, mutate_centroids
+
+print("======= Launching Phase 2 Generation Turnover Audit =======")
+classical_space, _ = generate_synthetic_spaces()
+population = []
+
+# 1. Initialize Parent Array
+for i in range(10):
+    idx = np.random.choice(classical_space.shape[0], size=3, replace=False)
+    ind = ClusterIndividual(classical_space[idx])
+    ind.fitness = [evaluate_compactness(classical_space, ind.centroids), evaluate_separation(ind.centroids)]
+    population.append(ind)
+
+# 2. Assign initial sorting metadata profiles
+fronts = fast_non_dominated_sort(population)
+for f in fronts:
+    assign_crowding_distances(f)
+
+print(f"Parent Population Size: {len(population)}")
+
+# 3. Simulate creation of an offspring population
+offspring_population = []
+while len(offspring_population) < len(population):
+    # Select parents via tournament
+    p1 = tournament_selection(population)
+    p2 = tournament_selection(population)
+    
+    # Crossover and Mutate
+    c1, c2 = crossover_centroids(p1, p2)
+    c1 = mutate_centroids(c1)
+    c2 = mutate_centroids(c2)
+    
+    # Score the new children
+    for child in [c1, c2]:
+        child.fitness = [evaluate_compactness(classical_space, child.centroids), evaluate_separation(child.centroids)]
+        if len(offspring_population) < len(population):
+            offspring_population.append(child)
+
+print(f"Successfully generated {len(offspring_population)} new evolved children.")
+print("=== Offspring Sample Core Check ===")
+print(f"Child Sample 0 Structure: {offspring_population[0]}")
+print("================ Phase 2 Framework Fully Complete ================")
