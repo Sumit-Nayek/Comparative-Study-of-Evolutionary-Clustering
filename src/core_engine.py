@@ -3,7 +3,7 @@ import numpy as np
 def calculate_distance_matrix(data: np.ndarray, centroids: np.ndarray) -> np.ndarray:
     """
     Calculates the Euclidean distance matrix using NumPy broadcasting.
-    Avoids nested loops to ensure zero CPU bloat in cloud systems.
+    Includes a safety clip to prevent negative floating-point precision noise.
     
     Parameters:
     data: Matrix of shape (n_samples, n_features)
@@ -12,13 +12,17 @@ def calculate_distance_matrix(data: np.ndarray, centroids: np.ndarray) -> np.nda
     Returns:
     Distance matrix of shape (n_samples, n_clusters)
     """
-    # Using the identity: (a - b)^2 = a^2 - 2ab + b^2 for calculation acceleration
-    distances = np.sqrt(
+    # 1. Compute the raw squared distance expansion
+    squared_distances = (
         np.sum(data**2, axis=1, keepdims=True) 
         - 2 * np.dot(data, centroids.T) 
         + np.sum(centroids**2, axis=1)
     )
-    return distances
+    
+    # 2. FIX: Clip any tiny negative values caused by floating-point noise to absolute 0.0
+    squared_distances = np.maximum(squared_distances, 0.0)
+    
+    return np.sqrt(squared_distances)
 
 def apply_winsorization(data: np.ndarray, lower_quantile: float = 0.05, upper_quantile: float = 0.95) -> np.ndarray:
     """
