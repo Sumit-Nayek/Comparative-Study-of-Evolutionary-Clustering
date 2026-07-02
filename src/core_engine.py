@@ -28,3 +28,18 @@ def apply_winsorization(data: np.ndarray, lower_quantile: float = 0.05, upper_qu
     lower_bound = np.quantile(data, lower_quantile, axis=0)
     upper_bound = np.quantile(data, upper_quantile, axis=0)
     return np.clip(data, lower_bound, upper_bound)
+class ClusterIndividual:
+    def __init__(self, centroids: np.ndarray):
+        """
+        Data structure representing a single candidate clustering solution.
+        
+        Parameters:
+        centroids: Array of shape (n_clusters, n_features)
+        """
+        self.centroids = np.copy(centroids)
+        self.fitness = []         # Stores [f1_score, f2_score]
+        self.rank = 0             # NSGA-II Pareto dominance rank
+        self.crowding_distance = 0.0
+        
+    def __repr__(self):
+        return f"Individual(Rank: {self.rank}, Fitness: {[round(x, 2) for x in self.fitness]})"
