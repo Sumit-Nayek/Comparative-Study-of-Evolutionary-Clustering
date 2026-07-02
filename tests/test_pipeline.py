@@ -119,3 +119,18 @@ print(f"Successfully generated {len(offspring_population)} new evolved children.
 print("=== Offspring Sample Core Check ===")
 print(f"Child Sample 0 Structure: {offspring_population[0]}")
 print("================ Phase 2 Framework Fully Complete ================")
+
+import os
+
+print("\n======= Launching Phase 3 Real Embedding Space Verification =======")
+embedding_file_path = "data/real_deep_embeddings.npy"
+
+if os.path.exists(embedding_file_path):
+    real_embeddings = np.load(embedding_file_path)
+    print(f"📦 Successfully loaded frozen deep embedding dataset!")
+    print(f"   -> Matrix Shape: {real_embeddings.shape}")
+    print(f"   -> Value Range: Min = {real_embeddings.min():.4f}, Max = {real_embeddings.max():.4f}")
+    print("================ Phase 3 Data Pipeline Verified ================")
+else:
+    print(f"⚠️ Warning: '{embedding_file_path}' not found yet. Please move the downloaded Colab file into your data/ folder.")
+    
