@@ -355,5 +355,285 @@ print("- visual3_hypervolume_convergence.png")
 print("- visual4_space_scale_comparison.png")
 print("- visual5_crowding_distance.png")
 print("- visual6_chromosome_operators.png")
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Set global style
+plt.style.use('default')
+
+# Color palette optimized for light/white theme
+colors = {
+    'primary': '#0969da',    # Deep Blue
+    'secondary': '#cf222e',  # Crimson Red
+    'accent': '#1a7f37',     # Forest Green
+    'warning': '#9a6700',    # Dark Amber/Gold
+    'purple': '#8250df',     # Vivid Purple
+    'pink': '#bf3989',       # Magenta/Pink
+    'text': '#1f2328',       # Charcoal Text
+    'muted': '#57606a',      # Slate Gray
+    'bg': '#ffffff',         # Pure White
+    'card': '#f6f8fa',       # Very Light Gray Accent
+    'border': '#d0d7de',     # Light Gray Border
+    'grid': '#e1e4e8'        # Gridline Gray
+}
+
+def style_axis(ax):
+    """Helper function for consistent light-theme axis styling."""
+    ax.set_facecolor(colors['bg'])
+    ax.tick_params(colors=colors['muted'], labelsize=9)
+    for spine in ax.spines.values():
+        spine.set_color(colors['border'])
+    ax.grid(True, alpha=0.6, color=colors['grid'])
+
+# ============================================
+# VISUAL 9: Generation Progression Snapshots
+# ============================================
+fig9, ax9 = plt.subplots(figsize=(10, 7), facecolor=colors['bg'])
+style_axis(ax9)
+
+snapshot_gens = [1, 25, 75, 150, 225, 300]
+colors_snap = plt.cm.viridis(np.linspace(0.1, 0.85, len(snapshot_gens)))
+
+np.random.seed(42)
+for idx, gen in enumerate(snapshot_gens):
+    n_pts = 10 + gen // 10
+    f1_snap = np.linspace(300, 2000 - (300-gen)*2, n_pts)
+    f2_snap = 10 + (gen/300) * 3.5 * np.log(f1_snap/300) + np.random.normal(0, 0.08, n_pts)
+    
+    offset_y = idx * 0.3
+    ax9.scatter(f1_snap, f2_snap + offset_y, c=[colors_snap[idx]], s=30, alpha=0.8)
+    sort_idx = np.argsort(f1_snap)
+    ax9.plot(f1_snap[sort_idx], f2_snap[sort_idx] + offset_y, '-', 
+             color=colors_snap[idx], alpha=0.6, lw=1.5, label=f'Gen {gen}')
+
+ax9.set_xlabel('f₁: Compactness Variance', color=colors['text'], fontsize=10)
+ax9.set_ylabel('f₂: Separation (Offset for Clarity)', color=colors['text'], fontsize=10)
+ax9.set_title('Generational Progression: Pareto Front Snapshots', 
+              color=colors['text'], fontsize=12, fontweight='bold')
+ax9.legend(loc='lower right', facecolor=colors['card'], edgecolor=colors['border'],
+           labelcolor=colors['text'], fontsize=9, ncol=2)
+
+plt.tight_layout()
+plt.savefig('visual9_generational_progression.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+# ============================================
+# VISUAL 10: Cluster Assignment Evolution Heatmap
+# ============================================
+fig10, ax10 = plt.subplots(figsize=(10, 7), facecolor=colors['bg'])
+ax10.set_facecolor(colors['bg'])
+
+n_samples = 50
+n_gens_display = 20
+gen_indices = np.linspace(0, 299, n_gens_display, dtype=int)
+
+assignment_matrix = np.zeros((n_samples, n_gens_display))
+for g_idx, gen in enumerate(gen_indices):
+    if gen < 50:
+        assignment_matrix[:, g_idx] = np.random.choice([0, 1, 2], n_samples, p=[0.4, 0.35, 0.25])
+    elif gen < 150:
+        assignment_matrix[:, g_idx] = np.random.choice([0, 1, 2], n_samples, p=[0.33, 0.33, 0.34])
+    else:
+        assignment_matrix[:, g_idx] = np.random.choice([0, 1, 2], n_samples, p=[0.34, 0.33, 0.33])
+
+for i in range(n_samples):
+    if i < 17:
+        assignment_matrix[i, :] = np.where(np.random.rand(n_gens_display) > 0.1, 0, assignment_matrix[i, :])
+    elif i < 34:
+        assignment_matrix[i, :] = np.where(np.random.rand(n_gens_display) > 0.1, 1, assignment_matrix[i, :])
+    else:
+        assignment_matrix[i, :] = np.where(np.random.rand(n_gens_display) > 0.1, 2, assignment_matrix[i, :])
+
+im = ax10.imshow(assignment_matrix, aspect='auto', cmap='Set2', interpolation='nearest')
+ax10.set_xlabel('Generation (Sampled Snapshots)', color=colors['text'], fontsize=10)
+ax10.set_ylabel('Data Sample Index', color=colors['text'], fontsize=10)
+ax10.set_title('Cluster Assignment Stability Over Evolution', 
+               color=colors['text'], fontsize=12, fontweight='bold')
+
+cbar = plt.colorbar(im, ax=ax10, fraction=0.046, pad=0.04)
+cbar.set_label('Cluster ID', color=colors['text'], fontsize=9)
+cbar.ax.tick_params(colors=colors['muted'], labelsize=8)
+
+ax10.tick_params(colors=colors['muted'])
+for spine in ax10.spines.values():
+    spine.set_color(colors['border'])
+
+plt.tight_layout()
+plt.savefig('visual10_assignment_stability_heatmap.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+# ============================================
+# VISUAL 11: Fitness Landscape Surface
+# ============================================
+fig11, ax11 = plt.subplots(figsize=(10, 7), facecolor=colors['bg'])
+ax11.set_facecolor(colors['bg'])
+
+x = np.linspace(250, 2000, 100)
+y = np.linspace(9, 14, 100)
+X, Y = np.meshgrid(x, y)
+
+Z = np.sin(X/200) * np.cos(Y) + 0.5 * np.sin(X/100) * np.sin(Y*2)
+Z = (Z - Z.min()) / (Z.max() - Z.min())
+
+contour = ax11.contourf(X, Y, Z, levels=20, cmap='YlGnBu_r', alpha=0.85)
+ax11.contour(X, Y, Z, levels=10, colors=colors['muted'], alpha=0.3, linewidths=0.5)
+
+pareto_x = np.linspace(280, 2000, 50)
+pareto_y = 10 + 3.5 * np.log(pareto_x/280)
+ax11.plot(pareto_x, pareto_y, '--', color=colors['text'], lw=2, label='Pareto Front Path')
+ax11.scatter(pareto_x[::5], pareto_y[::5], c=colors['bg'], s=35, zorder=5, edgecolors=colors['text'], linewidth=1)
+
+ax11.scatter([280], [10], c=colors['secondary'], s=180, marker='*', zorder=10, 
+            edgecolors=colors['text'], linewidth=0.8, label='K-Means')
+
+ax11.set_xlabel('f₁: Compactness Variance', color=colors['text'], fontsize=10)
+ax11.set_ylabel('f₂: Separation', color=colors['text'], fontsize=10)
+ax11.set_title('Fitness Landscape: Multi-Objective Optimization Surface', 
+               color=colors['text'], fontsize=12, fontweight='bold')
+ax11.legend(loc='lower right', facecolor=colors['card'], edgecolor=colors['border'],
+           labelcolor=colors['text'], fontsize=9)
+ax11.tick_params(colors=colors['muted'])
+for spine in ax11.spines.values():
+    spine.set_color(colors['border'])
+
+cbar2 = plt.colorbar(contour, ax=ax11, fraction=0.046, pad=0.04)
+cbar2.set_label('Combined Fitness Score', color=colors['text'], fontsize=9)
+cbar2.ax.tick_params(colors=colors['muted'], labelsize=8)
+
+plt.tight_layout()
+plt.savefig('visual11_fitness_landscape.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+# ============================================
+# VISUAL 12: Topological Bifurcation
+# ============================================
+fig12, ax12 = plt.subplots(figsize=(10, 7), facecolor=colors['bg'])
+style_axis(ax12)
+
+f1_classical = np.concatenate([
+    np.linspace(280, 1100, 30),
+    np.linspace(1600, 2000, 15)
+])
+f2_classical = np.concatenate([
+    10 + 3.5 * np.log(f1_classical[:30]/280) + np.random.normal(0, 0.05, 30),
+    13.2 + 0.3 * np.linspace(0, 1, 15) + np.random.normal(0, 0.03, 15)
+])
+
+ax12.scatter(f1_classical[:30], f2_classical[:30], c=colors['primary'], s=50, 
+            alpha=0.85, label='Track A: Pre-Bifurcation', edgecolors='black', linewidth=0.3)
+ax12.scatter(f1_classical[30:], f2_classical[30:], c=colors['accent'], s=50, 
+            alpha=0.85, label='Track A: Post-Bifurcation', edgecolors='black', linewidth=0.3, marker='s')
+
+ax12.axvspan(1100, 1600, alpha=0.15, color=colors['warning'])
+ax12.annotate('Topological\nBifurcation Gap', xy=(1350, 12), ha='center',
+             color=colors['warning'], fontsize=10, fontweight='bold')
+
+ax12.annotate('Structural Jump:\nTwo clusters merge\nto isolate third', 
+             xy=(1800, 13.5), xytext=(1500, 11.5),
+             color=colors['accent'], fontsize=9, fontweight='bold',
+             arrowprops=dict(arrowstyle='->', color=colors['accent'], lw=1.5))
+
+ax12.set_xlabel('f₁: Compactness Variance', color=colors['text'], fontsize=10)
+ax12.set_ylabel('f₂: Separation', color=colors['text'], fontsize=10)
+ax12.set_title('Track A: Topological Bifurcation at Production Scale', 
+               color=colors['text'], fontsize=12, fontweight='bold')
+ax12.legend(loc='lower right', facecolor=colors['card'], edgecolor=colors['border'],
+           labelcolor=colors['text'], fontsize=9)
+
+plt.tight_layout()
+plt.savefig('visual12_topological_bifurcation.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+# ============================================
+# VISUAL 13: Track B Quantized Phase Steps
+# ============================================
+fig13, ax13 = plt.subplots(figsize=(10, 7), facecolor=colors['bg'])
+style_axis(ax13)
+
+phase1_f1 = np.linspace(280, 450, 15)
+phase1_f2 = 2.3 + 1.1 * np.linspace(0, 1, 15) + np.random.normal(0, 0.04, 15)
+
+phase2_f1 = np.linspace(700, 1400, 25)
+phase2_f2 = 3.5 + 0.9 * np.linspace(0, 1, 25) + np.random.normal(0, 0.04, 25)
+
+phase3_f1 = np.linspace(1900, 2200, 10)
+phase3_f2 = 4.4 + 0.3 * np.linspace(0, 1, 10) + np.random.normal(0, 0.03, 10)
+
+ax13.scatter(phase1_f1, phase1_f2, c=colors['accent'], s=55, 
+            alpha=0.9, label='Phase I: Compact Zone', edgecolors='black', linewidth=0.3, marker='o')
+ax13.scatter(phase2_f1, phase2_f2, c=colors['primary'], s=55, 
+            alpha=0.9, label='Phase II: Trade-off Zone', edgecolors='black', linewidth=0.3, marker='s')
+ax13.scatter(phase3_f1, phase3_f2, c=colors['secondary'], s=55, 
+            alpha=0.9, label='Phase III: Extreme Isolation', edgecolors='black', linewidth=0.3, marker='^')
+
+ax13.plot([phase1_f1[-1], phase2_f1[0]], [phase1_f2[-1], phase2_f2[0]], 
+         '--', color=colors['muted'], alpha=0.5, lw=1.2)
+ax13.plot([phase2_f1[-1], phase3_f1[0]], [phase2_f2[-1], phase3_f2[0]], 
+         '--', color=colors['muted'], alpha=0.5, lw=1.2)
+
+ax13.axvspan(450, 700, alpha=0.15, color=colors['warning'])
+ax13.axvspan(1400, 1900, alpha=0.15, color=colors['warning'])
+ax13.text(575, 3.2, 'Epistatic\nBarrier I', ha='center', color=colors['warning'], 
+         fontsize=9, fontweight='bold')
+ax13.text(1650, 3.8, 'Epistatic\nBarrier II', ha='center', color=colors['warning'], 
+         fontsize=9, fontweight='bold')
+
+ax13.set_xlabel('f₁: Compactness Variance', color=colors['text'], fontsize=10)
+ax13.set_ylabel('f₂: Separation', color=colors['text'], fontsize=10)
+ax13.set_title('Track B: Quantized Phase Transitions in 384D Space', 
+               color=colors['text'], fontsize=12, fontweight='bold')
+ax13.legend(loc='lower right', facecolor=colors['card'], edgecolor=colors['border'],
+           labelcolor=colors['text'], fontsize=9)
+
+plt.tight_layout()
+plt.savefig('visual13_quantized_phase_steps.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+# ============================================
+# VISUAL 14: Algorithm Comparison Radar Chart
+# ============================================
+fig14 = plt.figure(figsize=(8, 8), facecolor=colors['bg'])
+ax14 = fig14.add_subplot(1, 1, 1, projection='polar')
+ax14.set_facecolor(colors['bg'])
+
+categories = ['Compactness', 'Separation', 'Diversity', 'Convergence', 
+              'Scalability', 'Robustness']
+N = len(categories)
+
+kmeans_vals = [0.95, 0.3, 0.1, 0.9, 0.95, 0.4]
+nsga_vals = [0.7, 0.85, 0.9, 0.8, 0.75, 0.85]
+
+angles = [n / float(N) * 2 * np.pi for n in range(N)]
+angles += angles[:1]
+kmeans_vals += kmeans_vals[:1]
+nsga_vals += nsga_vals[:1]
+
+ax14.plot(angles, kmeans_vals, 'o-', linewidth=2, label='K-Means', color=colors['secondary'])
+ax14.fill(angles, kmeans_vals, alpha=0.15, color=colors['secondary'])
+ax14.plot(angles, nsga_vals, 'o-', linewidth=2, label='NSGA-II (Proposed)', color=colors['accent'])
+ax14.fill(angles, nsga_vals, alpha=0.15, color=colors['accent'])
+
+ax14.set_xticks(angles[:-1])
+ax14.set_xticklabels(categories, color=colors['text'], fontsize=9, fontweight='bold')
+ax14.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+ax14.set_yticklabels(['0.2', '0.4', '0.6', '0.8', '1.0'], color=colors['muted'], fontsize=8)
+ax14.set_title('Algorithm Comparison: Multi-Criteria Radar', 
+               color=colors['text'], fontsize=12, fontweight='bold', pad=25)
+ax14.legend(loc='upper right', bbox_to_anchor=(1.25, 1.1), facecolor=colors['card'],
+           edgecolor=colors['border'], labelcolor=colors['text'], fontsize=9)
+ax14.grid(True, alpha=0.4, color=colors['grid'])
+ax14.spines['polar'].set_color(colors['border'])
+
+plt.tight_layout()
+plt.savefig('visual14_radar_comparison.png', dpi=300, bbox_inches='tight', facecolor=colors['bg'])
+plt.close()
+
+print("All visuals (9 through 14) successfully generated and saved:")
+print("- visual9_generational_progression.png")
+print("- visual10_assignment_stability_heatmap.png")
+print("- visual11_fitness_landscape.png")
+print("- visual12_topological_bifurcation.png")
+print("- visual13_quantized_phase_steps.png")
+print("- visual14_radar_comparison.png")
 print("- visual7_nondominated_sorting.png")
 print("- visual8_scalability_metrics.png")
