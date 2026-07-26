@@ -1,5 +1,6 @@
 # Comparative Study of Evolutionary Clustering
 A high-performance benchmarking and analysis framework engineered to evaluate the statistical convergence, mathematical integrity, and scalability of various Evolutionary Algorithms (EAs) against traditional unsupervised clustering baselines. 
+<img width="1323" height="710" alt="image" src="https://github.com/user-attachments/assets/5ffd16f8-f7f1-4eb5-9d39-9636fe22fce7" />
 
 ---
 
