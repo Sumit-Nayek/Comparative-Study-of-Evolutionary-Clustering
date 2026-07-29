@@ -43,6 +43,7 @@ Optimizing partition centers via global heuristics provides significant value ac
 
 ---
 
+
 ## 🛠️ The Production Tech Stack
 The architecture relies strictly on production-grade Python frameworks optimized for vector mathematics, evolutionary heuristics, and statistical visualizations:
 
@@ -65,3 +66,5 @@ The architecture relies strictly on production-grade Python frameworks optimized
 ├── results/                # Metrics output logs, comparative tables, and plots
 ├── requirements.txt        # Production dependency definitions
 └── README.md
+```
+<img width="1376" height="768" alt="Gemini_Generated_Image_b3xi04b3xi04b3xi" src="https://github.com/user-attachments/assets/baac029f-3b1c-42ac-b885-233e41421495" />
