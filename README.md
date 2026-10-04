@@ -4,7 +4,7 @@ A high-performance benchmarking and analysis framework engineered to evaluate th
 
 ---
 
-## 📌 Executive Summary & Key Points
+## Executive Summary & Key Points
 * **Global Optimization Paradigm:** Transitions data partitioning workflows away from localized gradient descent traps (e.g., traditional K-Means initial seed sensitivity) to global heuristic exploration.
 * **Topological Resilience:** Employs advanced mutation, crossover, and multi-agent swarm dynamics to accurately isolate erratic, non-linear, and overlapping cluster boundaries without breaking.
 * **Statistical Rigor:** Embeds programmatic validation routines to analyze hyperparameter variance (population size, mutation frequency, inertia weights) before committing partitions to downstream storage.
@@ -24,7 +24,7 @@ The core framework evaluates mathematical performance across multi-dimensional b
 
 ---
 
-## 📈 Comparative Benchmark Matrix
+## Comparative Benchmark Matrix
 This matrix outlines the mathematical trade-offs quantified by this comparative benchmarking engine:
 
 | Performance Dimension | Traditional Baselines (K-Means / FCM) | [cite_start]Evolutionary Standard (GA / PSO / DE) | Statistical Significan |
