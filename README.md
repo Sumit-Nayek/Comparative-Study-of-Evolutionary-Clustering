@@ -12,11 +12,11 @@ A high-performance benchmarking and analysis framework engineered to evaluate th
 ---
 
 ## Statistical Evaluation Framework
-The core framework evaluates mathematical performance across multi-dimensional benchmarks using key statistical validation indices:
+The core framework evaluates mathematical performance across multi dimensional benchmarks using key statistical validation indices:
 
 ### 1. Internal Validation Metrics (Clustering Quality)
 * **Silhouette Width Optimization:** Measures cluster cohesion versus separation to verify how well-separated the generated hyperspheres are.
-* **Davies-Bouldin Index:** Minimizes intra-cluster distances while maximizing inter-cluster spacing directly inside the evolutionary fitness loop.
+* **Davies-Bouldin Index:** Minimizes intracluster distances while maximizing intercluster spacing directly inside the evolutionary fitness loop.
 * **Calinski-Harabasz Index:** Evaluates the variance ratio to programmatically determine structural integrity and optimal cluster compactness.
 
 ### 2. External Validation Metrics (Ground Truth Accuracy)
